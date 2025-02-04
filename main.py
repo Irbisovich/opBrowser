@@ -1,5 +1,6 @@
 #opBrowser Beta v0.1
 
+from bs4 import BeautifulSoup
 import pyfiglet
 import requests
 import os
@@ -23,7 +24,7 @@ class OPBrowser:
                     self.line = str(input(f'{self.user}: '))
 
                     try:
-                        self.command, self.attribute = self.line.strip(' ')
+                        self.command, self.attribute = self.line.split()
                     except ValueError:
                         self.command = self.line
 
@@ -41,6 +42,17 @@ class OPBrowser:
                         self.info_list = '\n'.join(self.info_list)
 
                         print(f'\n{self.info_list}\n')
+
+                    elif self.command == 'parse':
+                        try:
+                            self.response = requests.get('https://' + self.attribute)
+                        except requests.exceptions.InvalidURL:
+                            self.response = requests.get('http://' + self.attribute)
+
+                        print(BeautifulSoup(self.response.text, 'lxml'))
+                        
+                    elif self.command == 'quit':
+                        quit()
 
                     else:
                         raise self.ErrorRaiser('Wrong command!', 2)
