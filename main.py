@@ -77,7 +77,7 @@ class OPBrowser:
 
             return '\n'.join(strings)
 
-    def __init__(self, bios_enabled=False, version='Dev', version_name='Beta', browser_creator='IrbisX7', browser_name='opBrowser'):
+    def __init__(self, bios_enabled=False, version='', version_name='', browser_creator='', browser_name=''):
         self.core = self.Core(bios_enabled, version, version_name, browser_creator, browser_name)
 
-OPBrowser(True)
+OPBrowser(True, 'Dev', 'Beta', 'IrbisX7', 'opBrowser')
