@@ -24,7 +24,7 @@ class OPBrowser:
                     self.line = str(input(f'{self.user}: '))
 
                     try:
-                        self.command, self.attribute = self.line.split()
+                        self.command, self.attribute = self.line.split(' ', 1)
                     except ValueError:
                         self.command = self.line
 
@@ -45,14 +45,47 @@ class OPBrowser:
 
                     elif self.command == 'parse':
                         try:
-                            self.response = requests.get('https://' + self.attribute)
-                        except requests.exceptions.InvalidURL:
-                            self.response = requests.get('http://' + self.attribute)
+                            self.protocol = self.attribute.split('//')[0]
 
-                        print(BeautifulSoup(self.response.text, 'lxml'))
-                        
+                            if f'{self.protocol}//' in ['https://', 'http://']:
+                                self.response = requests.get(self.attribute)
+                            else:
+                                try:
+                                    self.response = requests.get('https://' + self.attribute)
+                                except requests.exceptions.InvalidURL:
+                                    self.response = requests.get('http://' + self.attribute)
+                        except requests.exceptions.SSLError:
+                            raise self.ErrorRaiser(f'Error! ({self.attribute} can\'t be opened.)', 4)
+
+                        self.code = BeautifulSoup(self.response.text, 'lxml')
+
+                        print(f'\n{self.code}\n')
+
                     elif self.command == 'quit':
                         quit()
+
+                    elif self.command == 'help':
+                        self.commands_info = {
+                            'parse': '\'parse\': parsing site and prints code.',
+                            'info': '\'info\': shows application info.',
+                            'help': '\'help\': shows commands info.'
+                        }
+
+                        try:
+                            if self.attribute in list(self.commands_info):
+                                print(f'{self.commands_info[self.attribute]}')
+
+                            else:
+                                raise self.ErrorRaiser(f'Wrong attribute: command \'{self.attribute}\' don\'t exist!', 3)
+
+                        except AttributeError:
+                            self.commands_info_list = []
+                            for command_info in self.commands_info:
+                                self.commands_info_list.append(self.commands_info[command_info])
+
+                            self.commands_info = '\n'.join(self.commands_info_list)
+
+                            print(f'\n{self.commands_info}\n')
 
                     else:
                         raise self.ErrorRaiser('Wrong command!', 2)
